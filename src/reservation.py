@@ -1,3 +1,5 @@
+"""Modelos y repositorio para reservas de hotel."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
@@ -14,6 +16,8 @@ DATA_PATH = Path("data/reservations.json")
 
 @dataclass
 class Reservation:
+    """Entidad de reserva entre cliente y hotel."""
+
     reservation_id: str
     customer_id: str
     hotel_id: str
@@ -21,6 +25,8 @@ class Reservation:
 
 
 class ReservationRepository:
+    """Gestiona la persistencia y ciclo de vida de reservas."""
+
     def __init__(
         self,
         path: Path = DATA_PATH,
@@ -70,6 +76,8 @@ class ReservationRepository:
     def create_reservation(
         self, reservation_id: str, customer_id: str, hotel_id: str
     ) -> Reservation:
+        """Crea una reserva válida y descuenta una habitación disponible."""
+
         reservation_id = (reservation_id or "").strip()
         customer_id = (customer_id or "").strip()
         hotel_id = (hotel_id or "").strip()
@@ -105,10 +113,14 @@ class ReservationRepository:
         return reservation
 
     def get_reservation(self, reservation_id: str) -> Optional[Reservation]:
+        """Obtiene una reserva por identificador o `None` si no existe."""
+
         reservations = self._load()
         return reservations.get(reservation_id)
 
     def cancel_reservation(self, reservation_id: str) -> None:
+        """Cancela una reserva activa y libera la habitación asociada."""
+
         reservations = self._load()
 
         if reservation_id not in reservations:
@@ -127,5 +139,7 @@ class ReservationRepository:
         self.hotel_repo.release_room(reservation.hotel_id)
 
     def list_reservations(self) -> List[Reservation]:
+        """Lista todas las reservas almacenadas."""
+
         reservations = self._load()
         return list(reservations.values())
