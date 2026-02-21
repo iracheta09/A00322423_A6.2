@@ -1,3 +1,5 @@
+"""Gestión de hoteles y disponibilidad de habitaciones en JSON."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
@@ -12,6 +14,8 @@ DATA_PATH = Path("data/hotels.json")
 
 @dataclass
 class Hotel:
+    """Entidad de hotel con capacidad total y habitaciones disponibles."""
+
     hotel_id: str
     name: str
     rooms_total: int
@@ -19,10 +23,14 @@ class Hotel:
 
 
 class HotelRepository:
+    """Repositorio para operaciones sobre hoteles y sus habitaciones."""
+
     def __init__(self, path: Path = DATA_PATH) -> None:
+        """Inicializa el repositorio con la ruta de almacenamiento."""
         self.path = path
 
     def _load(self) -> Dict[str, Hotel]:
+        """Carga hoteles desde JSON y devuelve un diccionario por ID."""
         raw = load_json(self.path, default=[])
         hotels: Dict[str, Hotel] = {}
 
@@ -55,10 +63,12 @@ class HotelRepository:
         return hotels
 
     def _save(self, hotels: Dict[str, Hotel]) -> None:
+        """Guarda el diccionario de hoteles en formato JSON."""
         payload = [asdict(h) for h in hotels.values()]
         save_json(self.path, payload)
 
     def create_hotel(self, hotel_id: str, name: str, rooms_total: int) -> Hotel:
+        """Crea un hotel nuevo con todas sus habitaciones disponibles."""
         hotel_id = (hotel_id or "").strip()
         name = (name or "").strip()
 
@@ -86,10 +96,12 @@ class HotelRepository:
         return hotel
 
     def get_hotel(self, hotel_id: str) -> Optional[Hotel]:
+        """Obtiene un hotel por su ID o `None` si no existe."""
         hotels = self._load()
         return hotels.get(hotel_id)
 
     def reserve_room(self, hotel_id: str) -> None:
+        """Reserva una habitación en el hotel indicado si hay disponibilidad."""
         hotels = self._load()
 
         if hotel_id not in hotels:
@@ -104,6 +116,7 @@ class HotelRepository:
         self._save(hotels)
 
     def release_room(self, hotel_id: str) -> None:
+        """Libera una habitación previamente reservada en el hotel indicado."""
         hotels = self._load()
 
         if hotel_id not in hotels:
@@ -118,5 +131,6 @@ class HotelRepository:
         self._save(hotels)
 
     def list_hotels(self) -> List[Hotel]:
+        """Lista todos los hoteles almacenados."""
         hotels = self._load()
         return list(hotels.values())

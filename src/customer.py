@@ -1,3 +1,5 @@
+"""Gestión de clientes y persistencia en almacenamiento JSON."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
@@ -12,15 +14,21 @@ DATA_PATH = Path("data/customers.json")
 
 @dataclass
 class Customer:
+    """Entidad de cliente identificada por ID y nombre."""
+
     customer_id: str
     name: str
 
 
 class CustomerRepository:
+    """Repositorio para operaciones CRUD de clientes."""
+
     def __init__(self, path: Path = DATA_PATH) -> None:
+        """Inicializa el repositorio con la ruta de almacenamiento."""
         self.path = path
 
     def _load(self) -> Dict[str, Customer]:
+        """Carga clientes desde JSON y devuelve un diccionario por ID."""
         raw = load_json(self.path, default=[])
         customers: Dict[str, Customer] = {}
 
@@ -41,10 +49,12 @@ class CustomerRepository:
         return customers
 
     def _save(self, customers: Dict[str, Customer]) -> None:
+        """Guarda el diccionario de clientes en formato JSON."""
         payload = [asdict(c) for c in customers.values()]
         save_json(self.path, payload)
 
     def create_customer(self, customer_id: str, name: str) -> Customer:
+        """Crea un cliente nuevo validando campos obligatorios y unicidad."""
         customer_id = (customer_id or "").strip()
         name = (name or "").strip()
 
@@ -64,10 +74,12 @@ class CustomerRepository:
         return customer
 
     def get_customer(self, customer_id: str) -> Optional[Customer]:
+        """Obtiene un cliente por su ID o `None` si no existe."""
         customers = self._load()
         return customers.get(customer_id)
 
     def update_customer(self, customer_id: str, name: str) -> Customer:
+        """Actualiza el nombre de un cliente existente."""
         name = (name or "").strip()
 
         if not name:
@@ -83,6 +95,7 @@ class CustomerRepository:
         return customers[customer_id]
 
     def delete_customer(self, customer_id: str) -> None:
+        """Elimina un cliente existente por su ID."""
         customers = self._load()
 
         if customer_id not in customers:
@@ -92,5 +105,6 @@ class CustomerRepository:
         self._save(customers)
 
     def list_customers(self) -> List[Customer]:
+        """Lista todos los clientes almacenados."""
         customers = self._load()
         return list(customers.values())
