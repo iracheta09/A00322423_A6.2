@@ -18,3 +18,9 @@ Instalar dependencias:
 pip install -r requirements.txt
 
 python -m unittest discover -s tests -p "test_*.py" -v
+
+python -m coverage run -m unittest discover -s tests -p "test_*.py"
+python -m coverage report -m
+
+flake8 src tests
+pylint src
